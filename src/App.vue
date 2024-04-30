@@ -1,5 +1,8 @@
 <template>
     <div id="three-map" class="is-full"></div>
+    <div style="position: fixed; bottom: 0; left: 0; color: #fff">
+        <div @click="handleReset()">重置</div>
+    </div>
 </template>
 
 <script>
@@ -46,7 +49,10 @@ export default {
         const bottomZ = -0.2;
         const guiParams = {
             topColor: '#7af09d',
-            scale: 0.09,
+            scale: 0.0472,
+            centerX: 0.5,
+            centerY: 0.5,
+            rotation: 345,
             sideColor: '#123024',
             combine: "Multiply",// 混合模式
             transparent: true,  // 是否透明
@@ -58,7 +64,8 @@ export default {
         const initMaterial = async () => {
             // const tifUrl = await getTifConvertImage('/data/jx-nine.png')
             // 序列帧
-            textureMap = texture.load('/data/jx-nine.png');
+            // textureMap = texture.load('/data/jx-nine.png');
+            textureMap = texture.load('/data/gz.png');
             // 根据法向向量计算物体表面的颜色
             // const textureNormal = texture.load('/data/map/gz-map-fx.jpg');
             // const texturefxMap = texture.load('/data/map/alphaMap.jpg');
@@ -89,9 +96,22 @@ export default {
         const initGui = () => {
             const gui = new GUI();
             // 贴图比例
-            gui.add(guiParams, 'scale', 0, 1).onChange((val) => {
+            gui.add(guiParams, 'scale', 0, 0.2).onChange((val) => {
                 textureMap.repeat.set(val, val);
             });
+            gui.add(guiParams, 'centerX', 0, 1).onChange((val) => {
+                textureMap.center.set(val, textureMap.center.y);
+            });
+            gui.add(guiParams, 'centerY', 0, 1).onChange((val) => {
+                textureMap.center.set(textureMap.center.x, val);
+            });
+            gui.add(guiParams, 'rotation', 0, 360).onChange((val) => {
+                textureMap.rotation = val*(Math.PI / 180);
+                // textureMap.rotation = val*(180/Math.PI);
+            });
+
+
+
             // 材质1变化的影响
             const folder = gui.addFolder("地图面材质");
             folder.addColor(guiParams, "topColor").onChange((e) => {
@@ -364,7 +384,8 @@ export default {
         onMounted(async () => {
             await initMaterial()
             // 加载地图数据　
-            let provinceData = await requestData('./data/map/jxs.json');
+            // let provinceData = await requestData('./data/map/jxs.json');
+            let provinceData = await requestData('./data/map/gzs.json');
             // 获取到的数据已经MultiPolygon数据类型,不需要转换
             // provinceData = transfromGeoJSON(provinceData);
             class CurrentEarth extends BaseEarth {
@@ -375,10 +396,12 @@ export default {
                 initCamera() {
                     let {width, height} = this.options;
                     let rate = width / height;
-                    this.camera = new THREE.PerspectiveCamera(45, rate, 0.1, 90000000);
+                    // this.camera = new THREE.PerspectiveCamera(45, rate, 0.1, 90000000);
+                    this.camera = new THREE.PerspectiveCamera(20, rate, 0.1, 90000000);
                     //相机在Three.js坐标系中的位置,
                     //TODO：如何转换坐标问题
                     this.camera.position.set(115.8009015424425, 24.983899695712843, 9.129548316292933);
+                    // 网格辅助线
                     const helper = new THREE.CameraHelper(this.camera)
                     this.scene.add(helper)
                 }
@@ -474,9 +497,9 @@ export default {
                         // 将组添加到场景中
                         this.particleArr = initParticle(this.scene, earthGroupBound);
                         // 创建河流
-                        createFiveRiver(this.scene, this.mapGroup, gauge)
+                        // createFiveRiver(this.scene, this.mapGroup, gauge)
                         this.scene.add(this.mapGroup);
-                        // 创建控制器
+                        // 右上角创建控制器
                         initGui();
                         handleEvent(this.mouse)
                     } catch (error) {
@@ -585,6 +608,10 @@ export default {
         onBeforeUnmount(() => {
             window.removeEventListener('resize', resize);
         });
+
+        return{
+            handleReset: resize
+        }
     },
 };
 </script>
