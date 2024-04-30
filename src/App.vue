@@ -49,9 +49,10 @@ export default {
         const bottomZ = -0.2;
         const guiParams = {
             topColor: '#7af09d',
-            scale: 0.0472,
-            centerX: 0.5,
-            centerY: 0.5,
+            scaleX: 0.09,
+            scaleY: 0.09,
+            centerX: 0.10,
+            centerY: 0.066,
             rotation: 345,
             sideColor: '#123024',
             combine: "Multiply",// 混合模式
@@ -71,7 +72,8 @@ export default {
             // const texturefxMap = texture.load('/data/map/alphaMap.jpg');
             textureMap.wrapS = textureMap.wrapT = THREE.RepeatWrapping;
             // = THREE.RepeatWrapping;
-            textureMap.repeat.set(guiParams.scale, guiParams.scale);
+            textureMap.repeat.set(guiParams.scaleX, guiParams.scaleY);
+            textureMap.center.set(guiParams.centerX, guiParams.centerY);
             // 接收光的材质，没有光源者不显示
             // 该材料使用非基于物理的Blinn-Phong模型来计算反射系数
             // 高光的闪亮表面（如漆木）
@@ -96,13 +98,16 @@ export default {
         const initGui = () => {
             const gui = new GUI();
             // 贴图比例
-            gui.add(guiParams, 'scale', 0, 0.2).onChange((val) => {
-                textureMap.repeat.set(val, val);
+            gui.add(guiParams, 'scaleX', 0, 0.3).onChange((val) => {
+                textureMap.repeat.set(val, textureMap.repeat.y);
             });
-            gui.add(guiParams, 'centerX', 0, 1).onChange((val) => {
+            gui.add(guiParams, 'scaleY', 0, 0.3).onChange((val) => {
+                textureMap.repeat.set(textureMap.repeat.x, val);
+            });
+            gui.add(guiParams, 'centerX', -1, 1).onChange((val) => {
                 textureMap.center.set(val, textureMap.center.y);
             });
-            gui.add(guiParams, 'centerY', 0, 1).onChange((val) => {
+            gui.add(guiParams, 'centerY', -1, 1).onChange((val) => {
                 textureMap.center.set(textureMap.center.x, val);
             });
             gui.add(guiParams, 'rotation', 0, 360).onChange((val) => {
@@ -385,7 +390,7 @@ export default {
             await initMaterial()
             // 加载地图数据　
             // let provinceData = await requestData('./data/map/jxs.json');
-            let provinceData = await requestData('./data/map/gzs.json');
+            let provinceData = await requestData('./data/map/gz-data.json');
             // 获取到的数据已经MultiPolygon数据类型,不需要转换
             // provinceData = transfromGeoJSON(provinceData);
             class CurrentEarth extends BaseEarth {
