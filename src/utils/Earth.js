@@ -59,7 +59,7 @@ export default class Earth3d {
     this.initModel(); //
     this.initRenderer(); // 渲染器
     this.initLight(); // 添加光源
-    // this.initAxes(); // 添加辅助线
+    this.initAxes(); // 添加辅助线
     this.initControls(); // 添加控制器
     let gl = this.renderer.domElement.getContext('webgl');
     gl && gl.getExtension('WEBGL_lose_context').loseContext();

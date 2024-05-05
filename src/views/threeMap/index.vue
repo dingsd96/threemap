@@ -49,14 +49,16 @@ export default {
     const guiParams = {
       topColor: '#ffffff',
       // topColor: '#7af09d',
-      scaleX: 0.09,
-      scaleY: 0.09,
-      centerX: 0.10,
-      centerY: 0.066,
+      scaleX: 0.25,
+      scaleY: 0.25,
+      offsetX: 114.97,
+      offsetY: 25.67,
+      centerX: 0.951,
+      centerY: 0.06,
       rotation: 345,
       sideColor: '#123024',
       combine: "Multiply",// 混合模式
-      transparent: true,  // 是否透明
+      transparent: false,  // 是否透明
       opacity: 1, // 透明度
       depth: 0.1,
       bevelThickness: 0.2,
@@ -65,10 +67,11 @@ export default {
     const initMaterial = async () => {
       // 序列帧
       textureMap = texture.load('/data/gz.png');
-      // 根据法向向量计算物体表面的颜色
-      // const textureNormal = texture.load('/data/map/gz-map-fx.jpg');
-      // const texturefxMap = texture.load('/data/map/alphaMap.jpg');
       textureMap.wrapS = textureMap.wrapT = THREE.RepeatWrapping;
+      // textureMap.wrapS = textureMap.wrapT = THREE.ClampToEdgeWrapping;
+          // 设置纹理过滤方式
+      // texture.magFilter = THREE.LinearFilter;
+      // texture.minFilter = THREE.LinearMipmapLinearFilter;
       // = THREE.RepeatWrapping;
       textureMap.repeat.set(guiParams.scaleX, guiParams.scaleY);
       textureMap.center.set(guiParams.centerX, guiParams.centerY);
@@ -85,16 +88,7 @@ export default {
         transparent: false,                // 设置材质为不透明
         envMap: null,                      // 禁用反射贴图
         metalness: 0,                      // 禁用金属感
-        roughness: 1                       // 设置粗糙度为1，这将禁用SBR
-
-
-        // 法线贴图
-        //设置深浅程度，默认值(1,1)。
-        // color: guiParams.topColor,
-        // normalScale: new THREE.Vector2(1.2, 1.2),
-        // combine: THREE.MultiplyOperation,
-        // transparent: false,// 是否透明
-        // opacity: guiParams.opacity,  // 透明度
+        roughness: 1,                      // 设置粗糙度为1，这将禁用SBR
       });
       sideMaterial = new THREE.MeshLambertMaterial({
         color: guiParams.sideColor, // 地图高度的颜色
@@ -106,16 +100,22 @@ export default {
     const initGui = () => {
       const gui = new GUI();
       // 贴图比例
-      gui.add(guiParams, 'scaleX', 0, 0.3).onChange((val) => {
+      gui.add(guiParams, 'scaleX', 0.25, 0.4).onChange((val) => {
         textureMap.repeat.set(val, textureMap.repeat.y);
       });
-      gui.add(guiParams, 'scaleY', 0, 0.3).onChange((val) => {
+      gui.add(guiParams, 'scaleY', 0.25, 0.4).onChange((val) => {
         textureMap.repeat.set(textureMap.repeat.x, val);
       });
-      gui.add(guiParams, 'centerX', -1, 1).onChange((val) => {
+      gui.add(guiParams, 'offsetX', 0, 200).onChange((val) => {
+        textureMap.offset.set(val, textureMap.offset.y);
+      });
+      gui.add(guiParams, 'offsetY', 0, 100).onChange((val) => {
+        textureMap.offset.set(textureMap.offset.x, val);
+      });
+      gui.add(guiParams, 'centerX', 0, 2).onChange((val) => {
         textureMap.center.set(val, textureMap.center.y);
       });
-      gui.add(guiParams, 'centerY', -1, 1).onChange((val) => {
+      gui.add(guiParams, 'centerY', 0, 2).onChange((val) => {
         textureMap.center.set(textureMap.center.x, val);
       });
       gui.add(guiParams, 'rotation', 0, 360).onChange((val) => {
