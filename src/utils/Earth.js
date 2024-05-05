@@ -3,6 +3,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import TWEEN from '@tweenjs/tween.js';
 import { deepMerge, isType } from '@/utils';
+const clock = new THREE.Clock();
+
 // https://gis006216.jxwrd.gov.cn/arcgis/rest/services/project/Feature_RVL_7_8_9/MapServer/5
 export default class Earth3d {
   constructor(options = {}) {
@@ -22,7 +24,17 @@ export default class Earth3d {
       statsVisibel: true,
       axesVisibel: true,
       axesHelperSize: 250, // 左边尺寸
+
+      duration: 0,
+      startTime: null,
+      startPosition: null,
+      endPosition: null,
+      labelArr: null, // 用于生成label的数据
     };
+    this.duration =  1;
+    this.startTime =  clock.getElapsedTime();
+    this.startPosition = new THREE.Vector3(0, -1, 0)
+    this.endPosition = new THREE.Vector3(0, 0, 0)
     // 默认数据与传入数据融合
     this.options = deepMerge(defaultOptions, options);
     this.container = document.querySelector(this.options.container);
@@ -35,7 +47,7 @@ export default class Earth3d {
     this.animationStop = null; // 用于停止动画
     this.controls = null; // 轨道控制器
     this.stats = null; // 统计
-    this.raycaster = new THREE.Raycaster(); //光线摄像
+    // this.raycaster = new THREE.Raycaster(); //光线摄像
     this.mouse = new THREE.Vector2();
     this.lastPick = null;
     this.init();
@@ -47,7 +59,7 @@ export default class Earth3d {
     this.initModel(); //
     this.initRenderer(); // 渲染器
     this.initLight(); // 添加光源
-    this.initAxes(); // 添加辅助线
+    // this.initAxes(); // 添加辅助线
     this.initControls(); // 添加控制器
     let gl = this.renderer.domElement.getContext('webgl');
     gl && gl.getExtension('WEBGL_lose_context').loseContext();

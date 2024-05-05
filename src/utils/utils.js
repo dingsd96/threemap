@@ -50,3 +50,8 @@ export function lonlatToMercator(lon, lat, height) {
         z: z,
     };
 }
+
+// 缓动函数
+export function customEaseIn (t){
+  return t
+}
